@@ -13,7 +13,7 @@ app.use("/", globalRouter);
 app.use("/user", userRouter);
 app.use("/videos", videoRouter);
 
-
+ 
 const handleListening = () => {
     console.log(`🚀 Server Listening to port ${4000} on http://localhost:${PORT}`);
 };
