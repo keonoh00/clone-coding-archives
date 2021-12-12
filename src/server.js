@@ -11,9 +11,9 @@ const PORT = 4000;
 app.use(logger);
 app.use("/", globalRouter);
 app.use("/user", userRouter);
-app.use("/videos", videoRouter);
+app.use("/video", videoRouter);
 
- 
+
 const handleListening = () => {
     console.log(`🚀 Server Listening to port ${4000} on http://localhost:${PORT}`);
 };
