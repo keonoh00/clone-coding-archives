@@ -1,13 +1,13 @@
 export const trendingVideos = (req, res) => {
-    return res.send("Trending Videos on Home");
+    return res.render("home", { pageTitle: "Home" });
 };
 
 export const watchVideos = (req, res) => {
-    return res.send(`Watch Video: ${req.params.id}`);
+    return res.render("watch", { pageTitle: "Watch" });
 };
 
 export const editVideos = (req, res) => {
-    return res.send(`Edit Video with ID: ${req.params.id}`);
+    return res.render("edit", { pageTitle: "Edit" });
 };
 
 export const searchVideos = (req, res) => {
