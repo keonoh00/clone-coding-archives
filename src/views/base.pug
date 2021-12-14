@@ -4,6 +4,8 @@ html(lang="en")
         title #{pageTitle} | YouTube
         link(rel="stylesheet" href="https://unpkg.com/mvp.css")
     body
+        header
+            h2=pageTitle
         main 
             block content
-    include ./partials/footer.pug
+    include ./partials/footer

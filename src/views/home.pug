@@ -1,6 +1,12 @@
 extends base.pug
+include mixins/video
 
 block content
     h1 Home - Welcome!
+    div 
+        each video in trendingVideos
+            +video(video)
+        else
+            div Sorry No Trending Videos Available
     input(placeholder="Search for Videos!")
     button Send
