@@ -1,6 +1,12 @@
 extends base.pug
 include mixins/video
 
+block navigator
+    nav
+        ul
+            li
+                a(href="/video/upload") Upload
+
 block content
     h1 Home - Welcome!
     div 

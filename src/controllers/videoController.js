@@ -3,7 +3,7 @@ const fakeUserObj = {
   loggedIn: false,
 };
 
-const fakeVideos = [
+let fakeVideos = [
   {
     title: "Vid #1",
     rating: 5,
@@ -79,8 +79,9 @@ export const editVideos = (req, res) => {
 };
 
 export const postEdit = (req, res) => {
-  console.log(req.body);
   const { id } = req.params;
+  const { title } = req.body;
+  fakeVideos[id - 1].title = title;
   return res.redirect(`/video/${id}`);
 };
 
@@ -89,7 +90,11 @@ export const searchVideos = (req, res) => {
 };
 
 export const uploadVideo = (req, res) => {
-  return res.send("Upload Video");
+  return res.render("upload", { pageTitle: "Upload Your Video", user: fakeUserObj });
+};
+
+export const postUpload = (req, res) => {
+  return res.redirect("/");
 };
 
 export const deleteVideo = (req, res) => {
