@@ -13,10 +13,11 @@
   },
   "homepage": "https://github.com/keonoh00/youtube_clone#readme",
   "scripts": {
-    "dev": "nodemon --exec babel-node ./src/server.js"
+    "dev": "nodemon --exec babel-node ./src/init.js"
   },
   "dependencies": {
     "express": "^4.17.1",
+    "mongoose": "^6.1.2",
     "morgan": "^1.10.0",
     "pug": "^3.0.2"
   },

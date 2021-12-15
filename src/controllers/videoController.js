@@ -1,87 +1,50 @@
-const fakeUserObj = {
-  username: "devUser",
-  loggedIn: false,
-};
+import res from "express/lib/response";
+import video from "../models/video";
 
-let fakeVideos = [
-  {
-    title: "Vid #1",
-    rating: 5,
-    comments: 2,
-    created: "2 minutes ago",
-    views: 1,
-    id: 1,
-  },
-  {
-    title: "Vid #2",
-    rating: 3.2,
-    comments: 2,
-    created: "2 minutes ago",
-    views: 8459,
-    id: 2,
-  },
-  {
-    title: "Vid #3",
-    rating: 1.4,
-    comments: 2,
-    created: "2 minutes ago",
-    views: 30,
-    id: 3,
-  },
-  {
-    title: "Vid #4",
-    rating: 2,
-    comments: 2,
-    created: "2 minutes ago",
-    views: 10094,
-    id: 4,
-  },
-  {
-    title: "Vid #5",
-    rating: 3.2,
-    comments: 2,
-    created: "2 minutes ago",
-    views: 248439,
-    id: 5,
-  },
-  {
-    title: "Vid #6",
-    rating: 5,
-    comments: 2,
-    created: "2 minutes ago",
-    views: 234329,
-    id: 6,
-  },
-];
+/*
+Call Back Style
+video.find({}, (error, videos) => {
+  if (error) {
+    return res.render("server-error");
+  }
+  return res.render("home", { pageTitle: "Home", videos });
+});
 
-export const trendingVideos = (req, res) => {
-  return res.render("home", {
-    pageTitle: "Home",
-    user: fakeUserObj,
-    trendingVideos: fakeVideos,
-  });
+Promise Style
+try {
+  const videos = await video.find({});
+  return res.render("home", { pageTitle: "Home", trendingVideos: [] });
+} catch (error) {
+  return res.render("server-error", { error });
+}
+*/
+
+export const home = async (req, res) => {
+  try {
+    const videos = await video.find({});
+    return res.render("home", { pageTitle: "Home", trendingVideos: [] });
+  } catch (error) {
+    return res.render("server-error", { error });
+  }
 };
 
 export const watchVideos = (req, res) => {
   const { id } = req.params;
-  const video = fakeVideos[id - 1];
   return res.render("watch", {
     pageTitle: video.title,
-    user: fakeUserObj,
-    video,
   });
 };
 
 export const editVideos = (req, res) => {
   const { id } = req.params;
-  const video = fakeVideos[id - 1];
-  return res.render("edit", { pageTitle: `Edit: ${video.title}`, user: fakeUserObj, video });
+  return res.render("edit", {
+    pageTitle: `Edit: ${video.title}`,
+  });
 };
 
 export const postEdit = (req, res) => {
   const { id } = req.params;
   const { title } = req.body;
-  fakeVideos[id - 1].title = title;
   return res.redirect(`/video/${id}`);
 };
 
@@ -90,10 +53,11 @@ export const searchVideos = (req, res) => {
 };
 
 export const uploadVideo = (req, res) => {
-  return res.render("upload", { pageTitle: "Upload Your Video", user: fakeUserObj });
+  return res.render("upload", { pageTitle: "Upload Your Video" });
 };
 
 export const postUpload = (req, res) => {
+  const { title } = req.body;
   return res.redirect("/");
 };
 
