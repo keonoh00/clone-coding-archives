@@ -4,7 +4,7 @@ block content
     if (errorMessage)
         span=errorMessage
     form(method="POST", action="/video/upload")
-        input(placeholder="Enter the Title of Your Video", required, type="text", name="title")
-        input(placeholder="Enter the Description of Your Video", required, type="text", name="description")
+        input(placeholder="Enter the Title of Your Video", required, type="text", name="title", maxlength=50)
+        input(placeholder="Enter the Description of Your Video", required, type="text", name="description", maxlength=300)
         input(placeholder="Hashtags #..., #..., #...", required, type="text", name="hashtags")
         input(value="Upload", type="submit")

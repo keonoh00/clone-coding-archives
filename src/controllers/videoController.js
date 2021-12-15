@@ -1,9 +1,9 @@
 import res from "express/lib/response";
-import video from "../models/video";
+import videoDB from "../models/video";
 
 /*
 Call Back Style
-video.find({}, (error, videos) => {
+videoDB.find({}, (error, videos) => {
   if (error) {
     return res.render("server-error");
   }
@@ -12,7 +12,7 @@ video.find({}, (error, videos) => {
 
 Promise Style
 try {
-  const videos = await video.find({});
+  const videos = await videoDB.find({});
   return res.render("home", { pageTitle: "Home", trendingVideos: [] });
 } catch (error) {
   return res.render("server-error", { error });
@@ -21,7 +21,7 @@ try {
 
 export const home = async (req, res) => {
   try {
-    const trendingVideos = await video.find({});
+    const trendingVideos = await videoDB.find({});
     return res.render("home", { pageTitle: "Home", trendingVideos });
   } catch (error) {
     return res.render("server-error", { error });
@@ -35,7 +35,7 @@ export const uploadVideo = (req, res) => {
 export const postUpload = async (req, res) => {
   const { title, description, hashtags } = req.body;
   try {
-    await video.create({
+    await videoDB.create({
       title,
       description,
       hashtags: hashtags.split(",").map((tag) => `#${tag}`),
@@ -47,10 +47,12 @@ export const postUpload = async (req, res) => {
   }
 };
 
-export const watchVideos = (req, res) => {
+export const watchVideos = async (req, res) => {
   const { id } = req.params;
+  const video = await videoDB.findById(id).exec();
   return res.render("watch", {
     pageTitle: video.title,
+    video,
   });
 };
 
