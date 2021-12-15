@@ -21,10 +21,29 @@ try {
 
 export const home = async (req, res) => {
   try {
-    const videos = await video.find({});
-    return res.render("home", { pageTitle: "Home", trendingVideos: [] });
+    const trendingVideos = await video.find({});
+    return res.render("home", { pageTitle: "Home", trendingVideos });
   } catch (error) {
     return res.render("server-error", { error });
+  }
+};
+
+export const uploadVideo = (req, res) => {
+  return res.render("upload", { pageTitle: "Upload Your Video" });
+};
+
+export const postUpload = async (req, res) => {
+  const { title, description, hashtags } = req.body;
+  try {
+    await video.create({
+      title,
+      description,
+      hashtags: hashtags.split(",").map((tag) => `#${tag}`),
+    });
+    return res.redirect("/");
+  } catch (error) {
+    console.log(error);
+    return res.render("upload", { pageTitle: "Upload Your Video", errorMessage: error._message });
   }
 };
 
@@ -50,15 +69,6 @@ export const postEdit = (req, res) => {
 
 export const searchVideos = (req, res) => {
   return res.send("Searching...");
-};
-
-export const uploadVideo = (req, res) => {
-  return res.render("upload", { pageTitle: "Upload Your Video" });
-};
-
-export const postUpload = (req, res) => {
-  const { title } = req.body;
-  return res.redirect("/");
 };
 
 export const deleteVideo = (req, res) => {
