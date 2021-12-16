@@ -86,10 +86,12 @@ export const postEdit = async (req, res) => {
   return res.redirect(`/video/${id}`);
 };
 
-export const searchVideos = (req, res) => {
-  return res.send("Searching...");
+export const deleteVideo = async (req, res) => {
+  const { id } = req.params;
+  await videoDB.findByIdAndDelete({ _id: id });
+  return res.redirect("/");
 };
 
-export const deleteVideo = (req, res) => {
-  return res.send(`Delete Video with ID: ${req.params.id}`);
+export const searchVideos = (req, res) => {
+  return res.send("Searching...");
 };
