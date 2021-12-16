@@ -5,8 +5,11 @@ html(lang="en")
         link(rel="stylesheet" href="https://unpkg.com/mvp.css")
     body
         header
-            h2=pageTitle
-            block navigator
+        nav
+            ul
+                li
+                    a(href="/") Home
+                block navigator
         main 
             block content
     include ./partials/footer

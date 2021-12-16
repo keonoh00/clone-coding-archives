@@ -2,17 +2,15 @@ extends base.pug
 include mixins/video
 
 block navigator
-    nav
-        ul
-            li
-                a(href="/video/upload") Upload
+    li
+        a(href="/video/upload") Upload
 
 block content
     h1 Home - Welcome!
+    input(placeholder="Search for Videos!")
+    button Send
     div 
         each video in trendingVideos
             +video(video)
         else
             div Sorry No Trending Videos Available
-    input(placeholder="Search for Videos!")
-    button Send

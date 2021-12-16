@@ -11,6 +11,10 @@ const videoSchema = new mongoose.Schema({
   },
 });
 
+videoSchema.static("formatHashtags", (hashtags) => {
+  return hashtags.split(",").map((tag) => (tag.startsWith("#") ? tag : `#${tag}`));
+});
+
 const videoDB = mongoose.model("Video", videoSchema);
 
 export default videoDB;

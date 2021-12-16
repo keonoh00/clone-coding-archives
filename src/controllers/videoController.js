@@ -38,7 +38,7 @@ export const postUpload = async (req, res) => {
     await videoDB.create({
       title,
       description,
-      hashtags: hashtags.split(",").map((tag) => `#${tag}`),
+      hashtags: videoDB.formatHashtags(hashtags),
     });
     return res.redirect("/");
   } catch (error) {
@@ -49,23 +49,40 @@ export const postUpload = async (req, res) => {
 
 export const watchVideos = async (req, res) => {
   const { id } = req.params;
-  const video = await videoDB.findById(id).exec();
+  const video = await videoDB.findById(id);
+  if (!video) {
+    return res.render("404", { pageTitle: "404: No Video Found" });
+  }
   return res.render("watch", {
     pageTitle: video.title,
     video,
   });
 };
 
-export const editVideos = (req, res) => {
+export const editVideos = async (req, res) => {
   const { id } = req.params;
+  const video = await videoDB.findById(id);
+  if (!video) {
+    return res.render("404", { pageTitle: "404: No Video Found" });
+  }
   return res.render("edit", {
     pageTitle: `Edit: ${video.title}`,
+    video,
   });
 };
 
-export const postEdit = (req, res) => {
+export const postEdit = async (req, res) => {
   const { id } = req.params;
-  const { title } = req.body;
+  const { title, description, hashtags } = req.body;
+  const video = await videoDB.exists({ _id: id });
+  if (!video) {
+    return res.render("404", { pageTitle: "404: No Video Found" });
+  }
+  await videoDB.findByIdAndUpdate(id, {
+    title,
+    description,
+    hashtags: videoDB.formatHashtags(hashtags),
+  });
   return res.redirect(`/video/${id}`);
 };
 
