@@ -9,7 +9,12 @@ html(lang="en")
             ul
                 li
                     a(href="/") Home
-                block navigator
+                li
+                    a(href="/video/upload") Upload
+                li 
+                    form(action="search") 
+                        input(placeholder="Search by Title", name="keyword", type="text")
+                        input(type="submit", value="search")
         main 
             block content
     include ./partials/footer

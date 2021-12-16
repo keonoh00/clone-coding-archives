@@ -21,7 +21,7 @@ try {
 
 export const home = async (req, res) => {
   try {
-    const trendingVideos = await videoDB.find({});
+    const trendingVideos = await videoDB.find({}).sort({ createdAt: "desc" });
     return res.render("home", { pageTitle: "Home", trendingVideos });
   } catch (error) {
     return res.render("server-error", { error });
@@ -92,6 +92,16 @@ export const deleteVideo = async (req, res) => {
   return res.redirect("/");
 };
 
-export const searchVideos = (req, res) => {
-  return res.send("Searching...");
+export const searchVideos = async (req, res) => {
+  const { keyword } = req.query;
+  let searchResult = [];
+  if (keyword) {
+    //search for video
+    searchResult = await videoDB.find({
+      title: {
+        $regex: new RegExp(keyword, "i"),
+      },
+    });
+  }
+  return res.render("search", { pageTitle: `Search - ${keyword}`, searchResult });
 };
