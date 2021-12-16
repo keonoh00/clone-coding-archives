@@ -1,10 +1,19 @@
-const fakeUserObj = {
-  username: "devUser",
-  loggedIn: false,
+import userDB from "../models/user";
+
+export const createAccount = (req, res) => {
+  return res.render("createAccount", { pageTitle: "Create Account" });
 };
 
-export const join = (req, res) => {
-  return res.send("Join Us");
+export const postAccount = async (req, res) => {
+  const { name, email, username, password, location } = req.body;
+  await userDB.create({
+    name,
+    email,
+    username,
+    password,
+    location,
+  });
+  return res.redirect("/login");
 };
 
 export const editUser = (req, res) => {

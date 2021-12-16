@@ -1,11 +1,9 @@
 extends base.pug
+include mixins/video
 
 block content
     div 
-        h2=video.title
-        p=video.description
-        small=video.createdAt
-    hr
+        +video(video)
     a(href=`${video.id}/edit`) ✏️Edit
     br
     a(href=`${video.id}/delete`) ❌Delete
