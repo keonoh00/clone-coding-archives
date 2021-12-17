@@ -5,18 +5,19 @@ html(lang="en")
         link(rel="stylesheet" href="https://unpkg.com/mvp.css")
     body
         header
-        nav
-            ul
-                li
-                    a(href="/") Home
-                li
-                    a(href="/video/upload") Upload
-                li
-                    a(href="/join") Create Account
-                li 
-                    form(action="search") 
-                        input(placeholder="Search by Title", name="keyword", type="text")
-                        input(type="submit", value="search")
+            form(action="search") 
+                input(placeholder="Search by Title", name="keyword", type="text")
+                input(type="submit", value="search")
         main 
+            nav
+                ul
+                    li
+                        a(href="/") Home
+                    li
+                        a(href="/video/upload") Upload
+                    li
+                        a(href="/login") Login
+                    li
+                        a(href="/join") Create Account
             block content
     include ./partials/footer

@@ -1,6 +1,7 @@
 extends base
 
 block content
+    h3 Create Account
     if errorMessage
         span=errorMessage
     form(method="POST", action="/join")
@@ -10,3 +11,7 @@ block content
         input(name="password2", type="password", required, placeholder="Confirm Password")
         input(name="location", type="text", placeholder="location")
         input(type="submit", value="Create Account")
+    hr
+    div
+        span Already have an Account? 
+        a(href="/login") Login Now &rarr;
