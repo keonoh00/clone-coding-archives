@@ -15,9 +15,15 @@ html(lang="en")
                         a(href="/") Home
                     li
                         a(href="/video/upload") Upload
-                    li
-                        a(href="/login") Login
-                    li
-                        a(href="/join") Create Account
+                    if loggedIn
+                        li
+                            a(href="/user/logout") Logout
+                        li
+                            a(href="user/:id") #{user.name}'s Profile
+                    else
+                        li
+                            a(href="/login") Login
+                        li
+                            a(href="/join") Create Account
             block content
     include ./partials/footer

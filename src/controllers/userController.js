@@ -50,7 +50,15 @@ export const postLogin = async (req, res) => {
       .status(404)
       .render("login", { pageTitle: "Login", errorMessage: "Invalid Password" });
   }
-  return res.redirect(`/user/${email}`);
+  req.session.loggedIn = true;
+  req.session.user = user;
+  return res.redirect(`/user/${user.name}`);
+};
+
+export const logout = (req, res) => {
+  res.locals.loggedIn = false;
+  res.locals.user = {};
+  return res.redirect("/");
 };
 
 export const editUser = (req, res) => {
@@ -61,10 +69,23 @@ export const deleteUser = (req, res) => {
   return res.send("Delete User");
 };
 
-export const logout = (req, res) => {
-  return res.send("Logout");
-};
-
-export const dashboard = (req, res) => {
-  return res.send("dashboard");
+export const dashboard = async (req, res) => {
+  if (!req.session.user) {
+    return res.status(404).send("Wrong Approach");
+  }
+  const originalUrl = req.originalUrl.split("/");
+  const reqName = originalUrl.pop();
+  const { email, password } = req.session.user;
+  const DBauth = await userDB.findOne({ email });
+  if (password !== DBauth.password || reqName !== DBauth.name) {
+    return res.status(404).send("Wrong Approach");
+  }
+  return res.send(`dashboard ${res.session.user.name}`);
+  const localUser = res.locals.user;
+  const localEmail = localUser.email;
+  const DBuser = await userDB.findOne({ localEmail });
+  if (user && Boolean(DBuser.password == localUser.password)) {
+  }
+  console.log("You are here");
+  return res.redirect("/");
 };
