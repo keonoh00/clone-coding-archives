@@ -71,7 +71,7 @@ export const deleteUser = (req, res) => {
 
 export const dashboard = async (req, res) => {
   if (!req.session.user) {
-    return res.status(404).send("Wrong Approach");
+    return res.status(404).send("No Session User");
   }
   const originalUrl = req.originalUrl.split("/");
   const reqName = originalUrl.pop();
@@ -80,7 +80,7 @@ export const dashboard = async (req, res) => {
   if (password !== DBauth.password || reqName !== DBauth.name) {
     return res.status(404).send("Wrong Approach");
   }
-  return res.send(`dashboard ${res.session.user.name}`);
+  return res.send(`dashboard ${req.session.user.name}`);
   const localUser = res.locals.user;
   const localEmail = localUser.email;
   const DBuser = await userDB.findOne({ localEmail });

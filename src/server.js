@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import session from "express-session";
+import MongoStore from "connect-mongo";
 import rootRouter from "./routers/rootRouter";
 import userRouter from "./routers/userRouter";
 import videoRouter from "./routers/videoRouter";
@@ -14,12 +15,16 @@ app.set("views", process.cwd() + "/src/views");
 app.set("x-powered-by", false);
 app.use(logger);
 app.use(express.urlencoded({ extended: true }));
-
+require("dotenv").config();
 app.use(
   session({
-    secret: "youtube_clone_v1",
+    secret: process.env.COOKIE_SECRET,
     resave: true,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 86400000,
+    },
+    store: MongoStore.create({ mongoUrl: process.env.DB_URL }),
   })
 );
 

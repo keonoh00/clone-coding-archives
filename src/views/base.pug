@@ -13,13 +13,13 @@ html(lang="en")
                 ul
                     li
                         a(href="/") Home
-                    li
-                        a(href="/video/upload") Upload
                     if loggedIn
                         li
-                            a(href="/user/logout") Logout
+                            a(href="/video/upload") Upload Video
                         li
                             a(href="user/:id") #{user.name}'s Profile
+                        li
+                            a(href="/user/logout") Logout
                     else
                         li
                             a(href="/login") Login
