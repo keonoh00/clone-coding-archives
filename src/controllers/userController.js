@@ -1,5 +1,6 @@
 import userDB from "../models/user";
 import fetch from "node-fetch";
+import req from "express/lib/request";
 require("dotenv").config();
 
 export const createAccount = (req, res) => {
@@ -59,7 +60,7 @@ export const postLogin = async (req, res) => {
   }
   req.session.loggedIn = true;
   req.session.user = user;
-  return res.redirect(`/user/${user.name}`);
+  return res.redirect(`/user/${user.email}`);
 };
 
 export const logout = (req, res) => {
@@ -68,21 +69,7 @@ export const logout = (req, res) => {
 };
 
 export const dashboard = async (req, res) => {
-  if (!req.session.user) {
-    return res.status(404).send("No Session User");
-  }
-  const originalUrl = req.originalUrl.split("/");
-  const reqName = originalUrl.pop();
-  const { email, password } = req.session.user;
-  const DBauth = await userDB.findOne({ email });
-  if (req.session.github && decodeURI(reqName) !== DBauth.name) {
-    // if login with github only name matches then proceed
-    return res.send(`dashboard ${req.session.user.name}`);
-  } else if (password !== DBauth.password || decodeURI(reqName) !== DBauth.name) {
-    // if password does not match and name do not match then wrong approach
-    return res.status(404).send("Wrong Approach");
-  }
-  return res.send(`dashboard ${req.session.user.name}`);
+  return res.render("dashboard", { pageTitle: req.session.user.name });
 };
 
 export const startGithubLogin = (req, res) => {
@@ -149,15 +136,50 @@ export const githubCallback = async (req, res) => {
     }
     req.session.loggedIn = true;
     req.session.user = userData;
-    req.session.github = true;
     return res.redirect("/user/dashboard");
   } else {
     return res.redirect("/login");
   }
 };
 
-export const editUser = (req, res) => {
-  return res.send("Edit Profile");
+export const editProfile = (req, res) => {
+  return res.render("editprofile", { pageTitle: "Edit Profile" });
+};
+
+export const postProfile = async (req, res) => {
+  const {
+    session: {
+      user: { _id },
+    },
+    body: { name, location, email },
+  } = req;
+  //
+  const sessionUserKeys = Object.keys(req.session.user);
+  let editedFields = {};
+  sessionUserKeys.map((key) => {
+    if (key in req.body && req.session.user[key] !== req.body[key]) {
+      editedFields[key] = req.body[key];
+    }
+  });
+  if ("email" in editedFields) {
+    const emailExists = await userDB.exists({ email: editedFields.email });
+    if (emailExists) {
+      return res.render("editprofile", {
+        pageTitle: "Edit Profile",
+        errorMessage: "Email Already Exists",
+      });
+    }
+  }
+  const updatedProfile = await userDB.findByIdAndUpdate(
+    _id,
+    { name, location, email },
+    {
+      new: true,
+    }
+  );
+  req.session.user = updatedProfile;
+
+  return res.redirect("dashboard");
 };
 
 export const deleteUser = (req, res) => {

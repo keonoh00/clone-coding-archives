@@ -1,0 +1,17 @@
+extends base
+
+block content
+    if errorMessage
+        span=errorMessage
+    form(method="POST", action="/user/edit")
+        span Name 
+        input(name="name", placeholder="Name",value=user.name, required)
+        a(href="resetpassword") Reset Password
+        br
+        br
+        span Email
+        input(name="email", placeholder="Email",value=user.email, required)
+        br
+        span Location 
+        input(name="location", placeholder="Set Location",value=user.location)
+        input(type="submit", value="Update Profile")
