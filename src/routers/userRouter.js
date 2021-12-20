@@ -7,6 +7,8 @@ import {
   dashboard,
   startGithubLogin,
   githubCallback,
+  changePassword,
+  postPassword,
 } from "../controllers/userController";
 import { publiconlyMiddleware, useronlyMiddleware } from "../middlewares";
 
@@ -14,6 +16,7 @@ const userRouter = express.Router();
 
 userRouter.get("/logout", useronlyMiddleware, logout);
 userRouter.route("/edit").all(useronlyMiddleware).get(editProfile).post(postProfile);
+userRouter.route("/change-password").all(useronlyMiddleware).get(changePassword).post(postPassword);
 userRouter.get("/delete", useronlyMiddleware, deleteUser);
 userRouter.get("/github/start", publiconlyMiddleware, startGithubLogin);
 userRouter.get("/github/callback", publiconlyMiddleware, githubCallback);

@@ -1,23 +1,28 @@
 import userDB from "../models/user";
 import fetch from "node-fetch";
-import req from "express/lib/request";
 require("dotenv").config();
 
 export const createAccount = (req, res) => {
-  return res.render("createAccount", { pageTitle: "Create Account" });
+  return res.render("user/createAccount", { pageTitle: "Create Account" });
 };
 
 export const postAccount = async (req, res) => {
   const { name, email, password, password2, location } = req.body;
   if (password !== password2) {
-    return res.render("createAccount", {
+    return res.render("user/createAccount", {
       pageTitle: "Create Account",
       errorMessage: "Passwords Confirmation Does Not Match",
     });
   }
   const exists = await userDB.exists({ email });
+  if (exists && !exists.password) {
+    return res.status(404).render("user/createAccount", {
+      pageTitle: "Login",
+      errorMessage: "Already Have Account Using Github Login",
+    });
+  }
   if (exists) {
-    return res.status(400).render("createAccount", {
+    return res.status(400).render("user/createAccount", {
       pageTitle: "Create Account",
       errorMessage: "This email is already taken",
     });
@@ -28,12 +33,11 @@ export const postAccount = async (req, res) => {
     password,
     location,
   });
-  console.log(email, password);
   return res.redirect("/login");
 };
 
 export const login = (req, res) => {
-  return res.render("login", { pageTitle: "Login" });
+  return res.render("user/login", { pageTitle: "Login" });
 };
 
 export const postLogin = async (req, res) => {
@@ -43,20 +47,20 @@ export const postLogin = async (req, res) => {
   if (!exist) {
     return res
       .status(404)
-      .render("login", { pageTitle: "Login", errorMessage: "Email Does Not Exist" });
+      .render("user/login", { pageTitle: "Login", errorMessage: "Email Does Not Exist" });
   }
   // Check Password
   const user = await userDB.findOne({ email });
   if (!user.password) {
     return res
       .status(404)
-      .render("login", { pageTitle: "Login", errorMessage: "Use Github to Login" });
+      .render("user/login", { pageTitle: "Login", errorMessage: "Use Github to Login" });
   }
   const match = await userDB.checkPassword(password, user.password);
   if (!match) {
     return res
       .status(404)
-      .render("login", { pageTitle: "Login", errorMessage: "Invalid Password" });
+      .render("user/login", { pageTitle: "Login", errorMessage: "Invalid Password" });
   }
   req.session.loggedIn = true;
   req.session.user = user;
@@ -69,7 +73,7 @@ export const logout = (req, res) => {
 };
 
 export const dashboard = async (req, res) => {
-  return res.render("dashboard", { pageTitle: req.session.user.name });
+  return res.render("user/dashboard", { pageTitle: req.session.user.name });
 };
 
 export const startGithubLogin = (req, res) => {
@@ -143,7 +147,7 @@ export const githubCallback = async (req, res) => {
 };
 
 export const editProfile = (req, res) => {
-  return res.render("editprofile", { pageTitle: "Edit Profile" });
+  return res.render("user/editprofile", { pageTitle: "Edit Profile" });
 };
 
 export const postProfile = async (req, res) => {
@@ -164,7 +168,7 @@ export const postProfile = async (req, res) => {
   if ("email" in editedFields) {
     const emailExists = await userDB.exists({ email: editedFields.email });
     if (emailExists) {
-      return res.render("editprofile", {
+      return res.render("user/editprofile", {
         pageTitle: "Edit Profile",
         errorMessage: "Email Already Exists",
       });
@@ -180,6 +184,40 @@ export const postProfile = async (req, res) => {
   req.session.user = updatedProfile;
 
   return res.redirect("dashboard");
+};
+
+export const changePassword = (req, res) => {
+  return res.render("user/changepassword", { pageTitle: "Change Password" });
+};
+
+export const postPassword = async (req, res) => {
+  const { oldpassword, password, password2 } = req.body;
+  const { _id } = req.session.user;
+  const userData = await userDB.findById(_id);
+  const githubAccount = userData.password === "" ? true : false;
+  if (githubAccount) {
+    return res.status(404).render("user/changepassword", {
+      pageTitle: "Change Password",
+      errorMessage: "You cannot change Github Account Password",
+    });
+  }
+  const checkPassword = await userDB.checkPassword(oldpassword, userData.password);
+  if (!checkPassword) {
+    return res.status(404).render("user/changepassword", {
+      pageTitle: "Change Password",
+      errorMessage: "Old Password Does Not Match",
+    });
+  }
+  if (password !== password2) {
+    return res.status(404).render("user/changepassword", {
+      pageTitle: "Change Password",
+      errorMessage: "New Password and Confirm Password Do Not Match",
+    });
+  }
+  userData.password = password;
+  await userData.save();
+  req.session.user = userData;
+  return res.redirect("logout");
 };
 
 export const deleteUser = (req, res) => {
