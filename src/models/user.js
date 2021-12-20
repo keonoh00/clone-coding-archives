@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String },
   name: { type: String, required: true },
   location: { type: String },
 });
@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
 // is using static more secure???
 // pre method requires transmission of data through post method
 userSchema.pre("save", async function () {
-  this.password = await bcrypt.hash(this.password, 5);
+  this.password = this.password === "" ? "" : await bcrypt.hash(this.password, 5);
 });
 
 userSchema.static("checkPassword", async (password, hash) => {
