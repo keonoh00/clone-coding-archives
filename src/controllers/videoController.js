@@ -1,5 +1,6 @@
 import res from "express/lib/response";
 import videoDB from "../models/video";
+import userDB from "../models/user";
 
 /*
 Call Back Style
@@ -21,7 +22,8 @@ try {
 
 export const home = async (req, res) => {
   try {
-    const trendingVideos = await videoDB.find({}).sort({ createdAt: "desc" });
+    const trendingVideos = await videoDB.find({}).populate("owner").sort({ createdAt: "desc" });
+
     return res.render("home", { pageTitle: "Home", trendingVideos });
   } catch (error) {
     return res.status(404).render("404", { error });
@@ -33,13 +35,23 @@ export const uploadVideo = (req, res) => {
 };
 
 export const postUpload = async (req, res) => {
+  const videoFile = req.file;
+  const { _id } = req.session.user;
   const { title, description, hashtags } = req.body;
+  if (!videoFile) {
+    res.render("404", { pageTitle: "400: Server Error", errorMessage: "Server Problem Occured" });
+  }
   try {
-    await videoDB.create({
+    const newVideo = await videoDB.create({
       title,
       description,
       hashtags: videoDB.formatHashtags(hashtags),
+      videoUrl: videoFile.path,
+      owner: _id,
     });
+    const user = await userDB.findById(_id);
+    user.createdVideos.push(newVideo);
+    user.save();
     return res.redirect("/");
   } catch (error) {
     return res
@@ -50,13 +62,14 @@ export const postUpload = async (req, res) => {
 
 export const watchVideos = async (req, res) => {
   const { id } = req.params;
-  const video = await videoDB.findById(id);
+  const video = await videoDB.findById(id).populate("owner");
   if (!video) {
     return res.status(404).render("404", { pageTitle: "404: No Video Found" });
   }
   return res.render("video/watch", {
     pageTitle: video.title,
     video,
+    loggedInUserID: req.session.user ? req.session.user._id : "",
   });
 };
 
@@ -65,6 +78,11 @@ export const editVideos = async (req, res) => {
   const video = await videoDB.findById(id);
   if (!video) {
     return res.status(404).render("404", { pageTitle: "404: No Video Found" });
+  }
+  if (!req.session.user || String(video.owner) !== String(req.session.user.id)) {
+    return res
+      .status(404)
+      .render("404", { pageTitle: "Not Authorized", errorMessage: "You are not Authorized" });
   }
   return res.render("video/edit", {
     pageTitle: `Edit: ${video.title}`,
@@ -75,15 +93,27 @@ export const editVideos = async (req, res) => {
 export const postEdit = async (req, res) => {
   const { id } = req.params;
   const { title, description, hashtags } = req.body;
+  const videoFile = req.file;
   const video = await videoDB.exists({ _id: id });
   if (!video) {
     return res.status(404).render("404", { pageTitle: "404: No Video Found" });
   }
-  await videoDB.findByIdAndUpdate(id, {
-    title,
-    description,
-    hashtags: videoDB.formatHashtags(hashtags),
-  });
+  console.log(videoFile);
+  if (videoFile) {
+    const videoUrl = videoFile.path;
+    await videoDB.findByIdAndUpdate(id, {
+      title,
+      description,
+      videoUrl,
+      hashtags: videoDB.formatHashtags(hashtags),
+    });
+  } else {
+    await videoDB.findByIdAndUpdate(id, {
+      title,
+      description,
+      hashtags: videoDB.formatHashtags(hashtags),
+    });
+  }
   return res.redirect(`/video/${id}`);
 };
 

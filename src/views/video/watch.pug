@@ -1,9 +1,11 @@
 extends ../base.pug
-include mixins/video
+include ../mixins/video
 
 block content
+    video(src="/"+video.videoUrl, controls)
     div 
         +video(video)
-    a(href=`${video.id}/edit`) ✏️Edit
-    br
-    a(href=`${video.id}/delete`) ❌Delete
+    if String(loggedInUserID) === String(video.owner._id)
+        a(href=`${video.id}/edit`) ✏️Edit
+        br
+        a(href=`${video.id}/delete`) ❌Delete

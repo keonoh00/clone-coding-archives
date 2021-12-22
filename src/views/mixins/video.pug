@@ -3,8 +3,10 @@ mixin video(video)
         h4 
             a(href=`/video/${video.id}`)=video.title
         p=video.description
+        small Created By 
+            a(href="/user/"+video.owner._id)=video.owner.name
         div
             each tag in video.hashtags
                 small #{tag}&emsp;
-        small=video.createdAt
+        small=video.createdAt 
         hr

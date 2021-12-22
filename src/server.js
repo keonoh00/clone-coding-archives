@@ -15,6 +15,7 @@ app.set("views", process.cwd() + "/src/views");
 app.set("x-powered-by", false);
 app.use(logger);
 app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static("uploads"));
 require("dotenv").config();
 app.use(
   session({

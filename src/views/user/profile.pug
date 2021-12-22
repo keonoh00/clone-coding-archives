@@ -1,0 +1,9 @@
+extends ../base
+include ../mixins/video
+
+block content
+    p=owner.name
+    each video in createdVideos
+        +video(video)
+    else
+        p No Video Created by #{owner.name}

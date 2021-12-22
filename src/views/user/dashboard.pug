@@ -1,6 +1,29 @@
 extends ../base
 
 block content
-    a(href="edit") Edit Profile
+    div 
+        a(href="edit") Edit Profile
+        br
+        a(href="change-password") Change Password
     br
-    a(href="change-password") Change Password
+    div 
+        label Profile Photo
+        if user.profilePhoto
+            img(src="/"+user.profilePhoto, width="100", height="100")
+        else
+            a(href="edit") Edit Profile &nbsp;
+            span to Add Profile Photo
+        br
+        label Name
+        p=user.name
+        br
+        label Description
+        if user.description
+            p=user.description
+        else
+            a(href="edit") Edit Profile &nbsp;
+            span to Add Description
+        br
+        br
+        label Location 
+        p=user.location

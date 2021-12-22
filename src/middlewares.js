@@ -1,3 +1,5 @@
+import multer from "multer";
+
 export const localsMiddleware = (req, res, next) => {
   // This middleware is for storing session value to locals for pug rendering
   res.locals.loggedIn = Boolean(req.session.loggedIn);
@@ -18,3 +20,17 @@ export const publiconlyMiddleware = (req, res, next) => {
   }
   next();
 };
+
+export const uploadProfilePhoto = multer({
+  dest: "uploads/profilePhoto/",
+  limits: {
+    fileSize: 3000000,
+  },
+});
+
+export const uploadVideoFile = multer({
+  dest: "uploads/video/",
+  limits: {
+    fileSize: 100000000,
+  },
+});

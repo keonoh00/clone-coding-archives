@@ -1,4 +1,5 @@
 import userDB from "../models/user";
+import videoDB from "../models/video";
 import fetch from "node-fetch";
 require("dotenv").config();
 
@@ -7,7 +8,7 @@ export const createAccount = (req, res) => {
 };
 
 export const postAccount = async (req, res) => {
-  const { name, email, password, password2, location } = req.body;
+  const { name, email, password, password2, location, description } = req.body;
   if (password !== password2) {
     return res.render("user/createAccount", {
       pageTitle: "Create Account",
@@ -64,7 +65,7 @@ export const postLogin = async (req, res) => {
   }
   req.session.loggedIn = true;
   req.session.user = user;
-  return res.redirect(`/user/${user.email}`);
+  return res.redirect("/");
 };
 
 export const logout = (req, res) => {
@@ -132,15 +133,17 @@ export const githubCallback = async (req, res) => {
       // create new account on the server and redirect to home
       await userDB.create({
         email,
+        socialLogin: true,
         password: "",
         name: userJSON.login,
         location: "",
+        description: "",
       });
       userData = await userDB.findOne({ email });
     }
     req.session.loggedIn = true;
     req.session.user = userData;
-    return res.redirect("/user/dashboard");
+    return res.redirect("/");
   } else {
     return res.redirect("/login");
   }
@@ -153,11 +156,11 @@ export const editProfile = (req, res) => {
 export const postProfile = async (req, res) => {
   const {
     session: {
-      user: { _id },
+      user: { _id, profilePhoto },
     },
-    body: { name, location, email },
+    body: { name, location, email, description },
+    file,
   } = req;
-  //
   const sessionUserKeys = Object.keys(req.session.user);
   let editedFields = {};
   sessionUserKeys.map((key) => {
@@ -176,12 +179,13 @@ export const postProfile = async (req, res) => {
   }
   const updatedProfile = await userDB.findByIdAndUpdate(
     _id,
-    { name, location, email },
+    { name, location, email, description, profilePhoto: file ? file.path : profilePhoto },
     {
       new: true,
     }
   );
   req.session.user = updatedProfile;
+  res.locals.user = updatedProfile;
 
   return res.redirect("dashboard");
 };
@@ -222,4 +226,14 @@ export const postPassword = async (req, res) => {
 
 export const deleteUser = (req, res) => {
   return res.send("Delete User");
+};
+
+export const userProfile = async (req, res) => {
+  const { id } = req.params;
+  const owner = await userDB.findById(id);
+  const createdVideos = await videoDB.find({ owner: id }).sort("desc");
+  if (!owner) {
+    return res.render("404", { pageTitle: "No User", errorMessage: "There is no such a user" });
+  }
+  return res.render("user/profile", { pageTitle: owner.name, owner, createdVideos });
 };
