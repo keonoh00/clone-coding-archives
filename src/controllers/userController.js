@@ -231,7 +231,7 @@ export const deleteUser = (req, res) => {
 export const userProfile = async (req, res) => {
   const { id } = req.params;
   const owner = await userDB.findById(id);
-  const createdVideos = await videoDB.find({ owner: id }).sort("desc");
+  const createdVideos = await videoDB.find({ owner: id }).sort("desc").populate("owner");
   if (!owner) {
     return res.render("404", { pageTitle: "No User", errorMessage: "There is no such a user" });
   }

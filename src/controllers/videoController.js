@@ -31,6 +31,12 @@ export const home = async (req, res) => {
 };
 
 export const uploadVideo = (req, res) => {
+  if (!req.session.user.id) {
+    return res.status(403).render("user/login", {
+      pageTitle: "login",
+      errorMessage: "You must login to upload a video",
+    });
+  }
   return res.render("video/upload", { pageTitle: "Upload Your Video" });
 };
 
@@ -38,6 +44,11 @@ export const postUpload = async (req, res) => {
   const videoFile = req.file;
   const { _id } = req.session.user;
   const { title, description, hashtags } = req.body;
+  if (!req.session.user) {
+    return res
+      .status(403)
+      .render("user/login", { pageTitle: "Login", errorMessage: "You must login to upload" });
+  }
   if (!videoFile) {
     res.render("404", { pageTitle: "400: Server Error", errorMessage: "Server Problem Occured" });
   }
@@ -81,7 +92,7 @@ export const editVideos = async (req, res) => {
   }
   if (!req.session.user || String(video.owner) !== String(req.session.user.id)) {
     return res
-      .status(404)
+      .status(403)
       .render("404", { pageTitle: "Not Authorized", errorMessage: "You are not Authorized" });
   }
   return res.render("video/edit", {
@@ -94,9 +105,14 @@ export const postEdit = async (req, res) => {
   const { id } = req.params;
   const { title, description, hashtags } = req.body;
   const videoFile = req.file;
-  const video = await videoDB.exists({ _id: id });
+  const video = await videoDB.findById(id);
   if (!video) {
     return res.status(404).render("404", { pageTitle: "404: No Video Found" });
+  }
+  if (!req.session.user || String(video.owner) !== String(req.session.user.id)) {
+    return res
+      .status(403)
+      .render("404", { pageTitle: "Not Authorized", errorMessage: "You are not Authorized" });
   }
   console.log(videoFile);
   if (videoFile) {
@@ -119,6 +135,12 @@ export const postEdit = async (req, res) => {
 
 export const deleteVideo = async (req, res) => {
   const { id } = req.params;
+  const video = videoDB.findById(id);
+  if (!req.session.user || String(video.owner) !== String(req.sessin.user.id)) {
+    return res
+      .status(403)
+      .render("404", { pageTitle: "Not Authorized", errorMessage: "You are not Authorized" });
+  }
   await videoDB.findByIdAndDelete({ _id: id });
   return res.redirect("/");
 };
