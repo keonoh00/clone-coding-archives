@@ -10,13 +10,12 @@ import { localsMiddleware } from "./middlewares";
 const app = express();
 const logger = morgan("dev");
 
+require("dotenv").config();
+
 app.set("view engine", "pug");
 app.set("views", process.cwd() + "/src/views");
-app.set("x-powered-by", false);
 app.use(logger);
 app.use(express.urlencoded({ extended: true }));
-app.use("/uploads", express.static("uploads"));
-require("dotenv").config();
 app.use(
   session({
     secret: process.env.COOKIE_SECRET,
@@ -33,5 +32,7 @@ app.use(localsMiddleware);
 app.use("/", rootRouter);
 app.use("/user", userRouter);
 app.use("/video", videoRouter);
+app.use("/uploads", express.static("uploads"));
+app.use("/static", express.static("assets"));
 
 export default app;
