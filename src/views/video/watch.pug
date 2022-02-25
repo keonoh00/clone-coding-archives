@@ -2,10 +2,35 @@ extends ../base.pug
 include ../mixins/video
 
 block content
-    video(src="/"+video.videoUrl, controls)
+    div#videoContainer(data-videoid=video.id)
+        video(src="/"+video.videoUrl)
+        div#videoControls
+            button#play ▶️
+            button#mute 🔊
+            input(type="range", step=0.1, min=0, max=1, value=0.5)#volume
+            span#currentTime 00:00
+            span  / 
+            span#totalTime 00:00
+            div#timelineContainer
+                input(type="range", step=0.1, min=0, value=0)#timeline
+            div
+                button#fullScreen ⎚
     div 
         +video(video)
     if String(loggedInUserID) === String(video.owner._id)
-        a(href=`${video.id}/edit`) ✏️Edit
-        br
-        a(href=`${video.id}/delete`) ❌Delete
+        div.editVideoSection
+            a(href=`${video.id}/edit`) ✏️Edit
+            br
+            a(href=`${video.id}/delete`) ❌Delete
+    div.video__comments
+        if loggedInUserID
+            form.video__comment-form#commentForm
+                textarea(cols="30", row="10", placeholder="Write Comment...")
+                button(type="submit") Add Comment
+        ul.video__commentul
+            each comment in video.comments.reverse()
+                li.video__comment #{comment.text}
+block scripts
+    script(src="/static/js/videoPlayer.js")
+    if loggedInUserID
+        script(src="/static/js/commentSection.js")

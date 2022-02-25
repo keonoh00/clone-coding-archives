@@ -1,30 +1,16 @@
+include ./mixins/notification
 doctype html
 html(lang="en")
     head
         title #{pageTitle} | YouTube
-        link(rel="stylesheet" href="https://unpkg.com/mvp.css")
+        link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
+        link(rel="stylesheet", href="/static/css/styles.css")
     body
-        header
-            form(method="GET", action="/search") 
-                input(placeholder="Search by Title", name="keyword", type="text")
-                input(type="submit", value="search")
+        if messages.notification
+            +notification("error", messages.notification)
+        include ./partials/header
         main 
-            nav
-                ul
-                    li
-                        a(href="/") Home
-                    if loggedIn
-                        li
-                            a(href="/video/upload") Upload Video
-                        li
-                            a(href="/user/dashboard") #{user.name}'s Profile
-                        li
-                            a(href="/user/logout") Logout
-                    else
-                        li
-                            a(href="/login") Login
-                        li
-                            a(href="/join") Create Account
             block content
-    include ./partials/footer
+        include ./partials/footer
     script(src="/static/js/main.js")
+    block scripts

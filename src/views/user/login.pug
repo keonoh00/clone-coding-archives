@@ -2,8 +2,6 @@ extends ../base
 
 block content
     h2 Log In
-    if errorMessage
-        h5=errorMessage
     form(method="POST", action="/login")
         input(name="email", type="email", required, placeholder="Email")
         input(name="password", type="password", required, placeholder="Password")

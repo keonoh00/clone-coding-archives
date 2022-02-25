@@ -9,14 +9,16 @@ const userSchema = new mongoose.Schema({
   password: { type: String },
   name: { type: String, required: true },
   location: { type: String },
-  createdVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: "video" }],
+  createdVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Video" }],
+  writtenComments: [{ type: mongoose.Schema.Types.ObjectId, ref: "comment" }],
 });
 
 // is using static more secure???
 // pre method requires transmission of data through post method
 userSchema.pre("save", async function () {
   if (this.isModified("password")) {
-    this.password = this.password === "" ? "" : await bcrypt.hash(this.password, 5);
+    this.password =
+      this.password === "" ? "" : await bcrypt.hash(this.password, 5);
   }
 });
 

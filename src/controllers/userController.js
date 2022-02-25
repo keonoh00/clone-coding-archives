@@ -46,22 +46,25 @@ export const postLogin = async (req, res) => {
   const exist = await userDB.exists({ email });
   // Check User in the Database
   if (!exist) {
-    return res
-      .status(404)
-      .render("user/login", { pageTitle: "Login", errorMessage: "Email Does Not Exist" });
+    return res.status(404).render("user/login", {
+      pageTitle: "Login",
+      errorMessage: "Email Does Not Exist",
+    });
   }
   // Check Password
   const user = await userDB.findOne({ email });
   if (!user.password) {
-    return res
-      .status(404)
-      .render("user/login", { pageTitle: "Login", errorMessage: "Use Github to Login" });
+    return res.status(404).render("user/login", {
+      pageTitle: "Login",
+      errorMessage: "Use Github to Login",
+    });
   }
   const match = await userDB.checkPassword(password, user.password);
   if (!match) {
-    return res
-      .status(404)
-      .render("user/login", { pageTitle: "Login", errorMessage: "Invalid Password" });
+    return res.status(404).render("user/login", {
+      pageTitle: "Login",
+      errorMessage: "Invalid Password",
+    });
   }
   req.session.loggedIn = true;
   req.session.user = user;
@@ -179,7 +182,13 @@ export const postProfile = async (req, res) => {
   }
   const updatedProfile = await userDB.findByIdAndUpdate(
     _id,
-    { name, location, email, description, profilePhoto: file ? file.path : profilePhoto },
+    {
+      name,
+      location,
+      email,
+      description,
+      profilePhoto: file ? file.path : profilePhoto,
+    },
     {
       new: true,
     }
@@ -200,12 +209,13 @@ export const postPassword = async (req, res) => {
   const userData = await userDB.findById(_id);
   const githubAccount = userData.password === "" ? true : false;
   if (githubAccount) {
-    return res.status(404).render("user/changepassword", {
-      pageTitle: "Change Password",
-      errorMessage: "You cannot change Github Account Password",
-    });
+    req.flash("notification", "Not Available for Github Account");
+    return res.status(404).redirect("user/change-password");
   }
-  const checkPassword = await userDB.checkPassword(oldpassword, userData.password);
+  const checkPassword = await userDB.checkPassword(
+    oldpassword,
+    userData.password
+  );
   if (!checkPassword) {
     return res.status(404).render("user/changepassword", {
       pageTitle: "Change Password",
@@ -231,9 +241,20 @@ export const deleteUser = (req, res) => {
 export const userProfile = async (req, res) => {
   const { id } = req.params;
   const owner = await userDB.findById(id);
-  const createdVideos = await videoDB.find({ owner: id }).sort("desc").populate("owner");
+  const createdVideos = await videoDB
+    .find({ owner: id })
+    .sort("desc")
+    .populate("owner");
   if (!owner) {
-    return res.render("404", { pageTitle: "No User", errorMessage: "There is no such a user" });
+    req.flash;
+    return res.render("404", {
+      pageTitle: "No User",
+      errorMessage: "There is no such a user",
+    });
   }
-  return res.render("user/profile", { pageTitle: owner.name, owner, createdVideos });
+  return res.render("user/profile", {
+    pageTitle: owner.name,
+    owner,
+    createdVideos,
+  });
 };

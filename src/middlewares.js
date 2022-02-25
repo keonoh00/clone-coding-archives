@@ -9,7 +9,8 @@ export const localsMiddleware = (req, res, next) => {
 
 export const useronlyMiddleware = (req, res, next) => {
   if (!req.session.loggedIn) {
-    return res.status(404).send("Unauthorzied: You Must Login");
+    req.flash("notification", "Login to Upload");
+    return res.status(404).redirect("/login");
   }
   next();
 };

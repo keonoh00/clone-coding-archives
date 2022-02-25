@@ -1,0 +1,45 @@
+h1 {
+  margin: 10px;
+}
+
+.trendingVideoContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  max-width: 250px;
+  .trendingVideo {
+    margin: 20px 40px;
+    .thumbnailContainer {
+      width: 250px;
+      height: 150px;
+      background-color: azure;
+      border-radius: 20px;
+      margin: 0 auto;
+      margin-bottom: 10px;
+      align-items: center;
+      .thumnail {
+        align-self: center;
+        width: 100%;
+        margin: auto;
+      }
+    }
+    .infoContainer {
+      margin: 0 5px;
+      .videoTitle {
+        margin-bottom: 10px;
+        font-size: 18px;
+      }
+      .videoOwner {
+        font-size: 15px;
+        margin-bottom: 5px;
+      }
+      .hashtagContainer {
+        font-size: 12px;
+        margin-bottom: 5px;
+      }
+      .createdTime {
+        font-size: 10px;
+      }
+    }
+  }
+}

@@ -6,7 +6,7 @@ block content
     form(method="POST", enctype="multipart/form-data")
         label(for="video") Upload Video File
         // id is for label and name is for multer middleware
-        input(type="file", id="video", name="video", accept="video/*", required)
+        input(type="file", id="video", name="video", accept="video/*")
         input(name="title", placeholder="Video Title", value=video.title, required, maxlength=50)
         input(name="description", placeholder="Video Description", value=video.description, required, maxlength=300)
         input(name="hashtags", placeholder="Hashtags ...,...,...", value=video.hashtags.join(), required)

@@ -1,6 +1,7 @@
 import res from "express/lib/response";
 import videoDB from "../models/video";
 import userDB from "../models/user";
+import commentDB from "../models/comment";
 
 /*
 Call Back Style
@@ -22,7 +23,10 @@ try {
 
 export const home = async (req, res) => {
   try {
-    const trendingVideos = await videoDB.find({}).populate("owner").sort({ createdAt: "desc" });
+    const trendingVideos = await videoDB
+      .find({})
+      .populate("owner")
+      .sort({ createdAt: "desc" });
 
     return res.render("home", { pageTitle: "Home", trendingVideos });
   } catch (error) {
@@ -31,33 +35,34 @@ export const home = async (req, res) => {
 };
 
 export const uploadVideo = (req, res) => {
-  if (!req.session.user.id) {
-    return res.status(403).render("user/login", {
-      pageTitle: "login",
-      errorMessage: "You must login to upload a video",
-    });
+  if (!req.session.user) {
+    req.flash("notification", "Login to Upload");
+    return res.status(403).redirect("/login");
   }
   return res.render("video/upload", { pageTitle: "Upload Your Video" });
 };
 
 export const postUpload = async (req, res) => {
-  const videoFile = req.file;
+  const { video, thumb } = req.files;
   const { _id } = req.session.user;
   const { title, description, hashtags } = req.body;
   if (!req.session.user) {
-    return res
-      .status(403)
-      .render("user/login", { pageTitle: "Login", errorMessage: "You must login to upload" });
+    req.flash("notification", "Login to Upload");
+    return res.status(403).redirect("/login");
   }
-  if (!videoFile) {
-    res.render("404", { pageTitle: "400: Server Error", errorMessage: "Server Problem Occured" });
+  if (!video) {
+    res.render("404", {
+      pageTitle: "400: Server Error",
+      errorMessage: "Server Problem Occured",
+    });
   }
   try {
     const newVideo = await videoDB.create({
       title,
       description,
       hashtags: videoDB.formatHashtags(hashtags),
-      videoUrl: videoFile.path,
+      thumbUrl: thumb[0].path,
+      videoUrl: video[0].path,
       owner: _id,
     });
     const user = await userDB.findById(_id);
@@ -65,15 +70,17 @@ export const postUpload = async (req, res) => {
     user.save();
     return res.redirect("/");
   } catch (error) {
-    return res
-      .status(400)
-      .render("video/upload", { pageTitle: "Upload Your Video", errorMessage: error._message });
+    req.flash("notification", error._message);
+    return res.status(400).redirect("/video/upload");
   }
 };
 
 export const watchVideos = async (req, res) => {
   const { id } = req.params;
-  const video = await videoDB.findById(id).populate("owner");
+  const video = await videoDB
+    .findById(id)
+    .populate("owner")
+    .populate("comments");
   if (!video) {
     return res.status(404).render("404", { pageTitle: "404: No Video Found" });
   }
@@ -90,10 +97,11 @@ export const editVideos = async (req, res) => {
   if (!video) {
     return res.status(404).render("404", { pageTitle: "404: No Video Found" });
   }
-  if (!req.session.user || String(video.owner) !== String(req.session.user.id)) {
-    return res
-      .status(403)
-      .render("404", { pageTitle: "Not Authorized", errorMessage: "You are not Authorized" });
+  if (
+    !req.session.user ||
+    String(video.owner) !== String(req.session.user._id)
+  ) {
+    return res.status(403).redirect(``);
   }
   return res.render("video/edit", {
     pageTitle: `Edit: ${video.title}`,
@@ -104,23 +112,23 @@ export const editVideos = async (req, res) => {
 export const postEdit = async (req, res) => {
   const { id } = req.params;
   const { title, description, hashtags } = req.body;
-  const videoFile = req.file;
-  const video = await videoDB.findById(id);
+  const { video, thumb } = req.files;
+  // const video = await videoDB.findById(id);
   if (!video) {
     return res.status(404).render("404", { pageTitle: "404: No Video Found" });
   }
-  if (!req.session.user || String(video.owner) !== String(req.session.user.id)) {
-    return res
-      .status(403)
-      .render("404", { pageTitle: "Not Authorized", errorMessage: "You are not Authorized" });
+  if (
+    !req.session.user ||
+    String(video.owner) !== String(req.session.user._id)
+  ) {
+    req.flash("notification", "You are not Autorized");
+    return res.status(403).redirect(`video/${id}`);
   }
-  console.log(videoFile);
   if (videoFile) {
-    const videoUrl = videoFile.path;
     await videoDB.findByIdAndUpdate(id, {
       title,
       description,
-      videoUrl,
+      videoUrl: video[0].path,
       hashtags: videoDB.formatHashtags(hashtags),
     });
   } else {
@@ -136,10 +144,12 @@ export const postEdit = async (req, res) => {
 export const deleteVideo = async (req, res) => {
   const { id } = req.params;
   const video = videoDB.findById(id);
-  if (!req.session.user || String(video.owner) !== String(req.sessin.user.id)) {
-    return res
-      .status(403)
-      .render("404", { pageTitle: "Not Authorized", errorMessage: "You are not Authorized" });
+  if (
+    !req.session.user ||
+    String(video.owner) !== String(req.session.user._id)
+  ) {
+    req.flash("notification", "You are not Autorized");
+    return res.status(403).redirect(`video/${id}`);
   }
   await videoDB.findByIdAndDelete({ _id: id });
   return res.redirect("/");
@@ -156,5 +166,41 @@ export const searchVideos = async (req, res) => {
       },
     });
   }
-  return res.render("search", { pageTitle: `Search - ${keyword}`, searchResult });
+  return res.render("search", {
+    pageTitle: `Search - ${keyword}`,
+    searchResult,
+  });
+};
+
+export const registerView = async (req, res) => {
+  const { id } = req.params;
+  const video = await videoDB.findById(id);
+  if (!video) {
+    return res.sendStatus(404);
+  }
+  video.meta.views = video.meta.views + 1;
+  await video.save();
+  return res.sendStatus(200);
+};
+
+export const registerComment = async (req, res) => {
+  const {
+    session: { user },
+    body: { text },
+    params: { id },
+  } = req;
+  const video = await videoDB.findById(id);
+  if (!video) {
+    res.flash("notification", "Cannot find video");
+    return res.sendStatus(404);
+  }
+  console.log(text);
+  const comment = await commentDB.create({
+    text,
+    video: id,
+    owner: user._id,
+  });
+  video.comments.push(comment._id);
+  video.save();
+  return res.sendStatus(201);
 };

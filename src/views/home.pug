@@ -3,8 +3,7 @@ include mixins/video
 
 
 block content
-    h1 Home - Welcome!
-    div 
+    div.trendingVideoContainer
         each video in trendingVideos
             +video(video)
         else

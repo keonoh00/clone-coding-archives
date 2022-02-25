@@ -1,0 +1,27 @@
+header
+    a(href="/").header__logo
+        i.fab.fa-youtube
+        p.header__title YouTube
+    form(method="GET", action="/search") 
+        input(placeholder="Search by Title", name="keyword", type="text").searchBox
+        button(type="submit")
+            i.fas.fa-search
+    nav
+        ul
+            li
+                a(href="/") Home
+            if loggedIn
+                li
+                    a(href="/video/upload") Upload Video
+                li
+                    a(href="/user/dashboard") #{user.name}'s Profile
+                li
+                    a(href="/user/logout").header__btn Logout
+                //- This is for github avatar fetch problem
+                //- Avatar fetch feature is not supported yet
+                //- img.header__avatar(src=loggedInUser.avatarUrl,crossorigin)
+            else
+                li
+                    a(href="/login").header__btn Login
+                li
+                    a(href="/join") Create Account

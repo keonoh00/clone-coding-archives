@@ -6,7 +6,11 @@ const videoSchema = new mongoose.Schema({
   createdAt: { type: Date, required: true, default: Date.now },
   owner: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "user" },
   videoUrl: { type: String, required: true },
+  thumbUrl: { type: String, required: true },
   hashtags: [{ type: String, trim: true }],
+  comments: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "comment", required: true },
+  ],
   meta: {
     views: { type: Number, default: 0, required: true },
     rating: { type: Number, default: 0, required: true },
@@ -14,7 +18,9 @@ const videoSchema = new mongoose.Schema({
 });
 
 videoSchema.static("formatHashtags", (hashtags) => {
-  return hashtags.split(",").map((tag) => (tag.trim().startsWith("#") ? tag : `#${tag}`));
+  return hashtags
+    .split(",")
+    .map((tag) => (tag.trim().startsWith("#") ? tag : `#${tag}`));
 });
 
 const videoDB = mongoose.model("Video", videoSchema);
