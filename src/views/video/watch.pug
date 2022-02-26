@@ -15,8 +15,15 @@ block content
                 input(type="range", step=0.1, min=0, value=0)#timeline
             div
                 button#fullScreen ⎚
-    div 
-        +video(video)
+    div.infoContainer
+        h4.videoTitle
+            a(href=`/video/${video.id}`)=video.title
+        p.videoOwner
+            a(href="/user/"+video.owner._id)=video.owner.name
+        div.hashtagContainer
+            each tag in video.hashtags
+                span.hashtag #{tag}&emsp;
+        p.createdTime #{video.createdAt}
     if String(loggedInUserID) === String(video.owner._id)
         div.editVideoSection
             a(href=`${video.id}/edit`) ✏️Edit

@@ -46,3 +46,23 @@
     }
   }
 }
+
+.infoContainer {
+  margin: 0 5px;
+  margin-top: 10px;
+  .videoTitle {
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+  .videoOwner {
+    font-size: 15px;
+    margin-bottom: 5px;
+  }
+  .hashtagContainer {
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+  .createdTime {
+    font-size: 10px;
+  }
+}

@@ -27,7 +27,6 @@ export const home = async (req, res) => {
       .find({})
       .populate("owner")
       .sort({ createdAt: "desc" });
-
     return res.render("home", { pageTitle: "Home", trendingVideos });
   } catch (error) {
     return res.status(404).render("404", { error });
@@ -122,7 +121,7 @@ export const postEdit = async (req, res) => {
     String(video.owner) !== String(req.session.user._id)
   ) {
     req.flash("notification", "You are not Autorized");
-    return res.status(403).redirect(`video/${id}`);
+    return res.status(403).redirect(`/video/${id}`);
   }
   if (videoFile) {
     await videoDB.findByIdAndUpdate(id, {
@@ -149,7 +148,7 @@ export const deleteVideo = async (req, res) => {
     String(video.owner) !== String(req.session.user._id)
   ) {
     req.flash("notification", "You are not Autorized");
-    return res.status(403).redirect(`video/${id}`);
+    return res.status(403).redirect(`/video/${id}`);
   }
   await videoDB.findByIdAndDelete({ _id: id });
   return res.redirect("/");

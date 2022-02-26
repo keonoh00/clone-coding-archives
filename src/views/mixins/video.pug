@@ -1,8 +1,9 @@
 mixin video(video)
     div.trendingVideo
-        a(href=`/video/${video.id}`)
-            div.thumbnailContainer
-                img(src="/thumbnail").thumbnail
+        div.thumbnailContainer
+            a(href=`/video/${video.id}`)
+                if video.thumbUrl
+                    img(src=`/${video.thumbUrl}`).thumbnail
         div.infoContainer
             h4.videoTitle
                 a(href=`/video/${video.id}`)=video.title

@@ -1,7 +1,12 @@
 #videoContainer {
-  width: 100%;
+  width: 90%;
+  align-items: center;
   position: relative;
+  margin: 0 auto;
+  margin-top: 20px;
+  background-color: black;
   video {
+    max-height: 600px;
     width: 100%;
   }
   #videoControls {
